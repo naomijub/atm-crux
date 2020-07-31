@@ -32,8 +32,8 @@ pub fn withdraw(client: &DockerClient, account: u32, password: u32, amount: i64)
 
     let is_password_valid = verify(format!("{}", password), &pswd).unwrap();
 
-    let account = Account::new(id.clone(), amount);
-    let entity = client.entity(account.clone().crux__db___id.serialize()).unwrap();
+    let account_id = Account::account_id(id.clone());
+    let entity = client.entity(account_id.serialize()).unwrap();
     let account = Account::from(entity);
     match (is_password_valid, account.value > amount) {
         (true, true) => {

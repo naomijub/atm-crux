@@ -57,6 +57,10 @@ impl Account {
         }
     }
 
+    pub fn account_id(user: String) -> CruxId {
+        CruxId::new(&format!("transaction/{}", user))
+    }
+
     pub fn transact(self) -> Vec<Action> {
         let action = Action::Put(self.serialize());
         vec![action]
