@@ -974,9 +974,9 @@ dependencies = [
 
 [[package]]
 name = "transistor"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "78206a0e92f7c6f73f1423054571045e721587eab9c49f98ff5c8791580b4fcf"
+checksum = "8dfc3f0fbaf1fd275ac8bbd44777cef8c7deae101b14f12a3ff37b2c1189f7f9"
 dependencies = [
  "edn-rs",
  "reqwest",

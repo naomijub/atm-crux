@@ -8,6 +8,6 @@ edition = "2018"
 
 [dependencies]
 # iced = "0.1"
-transistor = "0.4"
+transistor = "0.4.1"
 bcrypt = "0.8"
 

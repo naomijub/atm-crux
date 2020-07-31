@@ -1,3 +1,5 @@
+**The main idea was to use a challange to implement a transistor example**
+* This uses Crux as database.
 * This was translated by google translate.
 * I did not really care about delivering the exact problem, I created and App instead of Api.
 
