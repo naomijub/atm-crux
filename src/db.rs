@@ -6,20 +6,8 @@ use transistor::edn_rs::{Serialize};
 
 use bcrypt::{verify};
 
-use crate::model::{User, Account};
+use crate::model::{User, Account, Transaction};
 use crate::logic::extrat_id_password;
-
-
-pub fn db_main() -> Result<(), CruxError> {
-    let client = Crux::new("localhost","3000").docker_client();
-    create_account(&client, String::from("naomijub"), 123456u32, 1029384756u32, 300i64)?;
-
-    let money = withdraw(&client, 123456u32, 1029384756u32, 50i64)?;
-
-    println!("{:?}", money);
-
-    Ok(())
-}
 
 pub fn withdraw(client: &DockerClient, account: u32, password: u32, amount: i64) -> Result<i64, CruxError>{
 
@@ -38,7 +26,7 @@ pub fn withdraw(client: &DockerClient, account: u32, password: u32, amount: i64)
     match (is_password_valid, account.value > amount) {
         (true, true) => {
             let tx_account = Account::new(id, account.value - amount);
-            client.tx_log(tx_account.transact())?;
+            client.tx_log(tx_account.transact(Transaction::Withdraw))?;
 
             Ok(amount)
         },
@@ -51,10 +39,7 @@ pub fn create_account(client: &DockerClient , user: String, account: u32, passwo
     client.tx_log(login.clone().register())?;
 
     let account = Account::new(user, amount);
-    client.tx_log(account.transact())?;
+    client.tx_log(account.transact(Transaction::CreateAccount))?;
 
-    Ok(login.crux__db___id.serialize())
+    Ok(login.account.to_string())
 }
-
-
-

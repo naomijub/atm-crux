@@ -101,7 +101,8 @@ impl Account {
         CruxId::new(&format!("transaction/{}", user))
     }
 
-    pub fn transact(self) -> Vec<Action> {
+    pub fn transact(mut self, transaction: Transaction) -> Vec<Action> {
+        self.transaction_type = transaction;
         let action = Action::Put(self.serialize());
         vec![action]
     }
