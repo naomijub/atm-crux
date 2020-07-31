@@ -47,7 +47,7 @@ impl Serialize for Transaction {
 
 impl From<Edn> for Transaction {
     fn from(edn: Edn) -> Self {
-        println!("{:?}", edn);
+
         match edn {
             Edn::Key(k) => match &k[..] {
                 ":transaction/create-account" => Transaction::CreateAccount,
