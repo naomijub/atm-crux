@@ -6,7 +6,7 @@ use transistor::edn_rs::{Serialize};
 
 use bcrypt::{verify};
 
-use crate::model::{Login, Account};
+use crate::model::{User, Account};
 use crate::logic::extrat_id_password;
 
 
@@ -46,14 +46,14 @@ pub fn withdraw(client: &DockerClient, account: u32, password: u32, amount: i64)
     }
 }
 
-pub fn create_account(client: &DockerClient , user: String, account: u32, password: u32, amount: i64) -> Result<(), CruxError>{
-    let login = Login::new(user.clone(), account, password);
-    client.tx_log(login.register())?;
+pub fn create_account(client: &DockerClient , user: String, account: u32, password: u32, amount: i64) -> Result<String, CruxError>{
+    let login = User::new(user.clone(), account, password);
+    client.tx_log(login.clone().register())?;
 
     let account = Account::new(user, amount);
     client.tx_log(account.transact())?;
 
-    Ok(())
+    Ok(login.crux__db___id.serialize())
 }
 
 
