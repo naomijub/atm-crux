@@ -1,14 +1,14 @@
-use transistor::types::{CruxId};
-use transistor::docker::{Action,};
+use transistor::docker::Action;
+use transistor::types::CruxId;
 
-use transistor::edn_rs::{Edn, ser_struct, Serialize};
-use bcrypt::{DEFAULT_COST, hash};
+use bcrypt::{hash, DEFAULT_COST};
+use transistor::edn_rs::{ser_struct, Edn, Serialize};
 
 ser_struct! {
     #[derive(Debug, Clone)]
     #[allow(non_snake_case)]
     pub struct User {
-        crux__db___id: CruxId, 
+        crux__db___id: CruxId,
         account: u32,
         password: String,
     }
@@ -18,8 +18,9 @@ ser_struct! {
     #[derive(Debug, Clone, PartialEq)]
     #[allow(non_snake_case)]
     pub struct Account {
-        crux__db___id: CruxId, 
+        crux__db___id: CruxId,
         value: i64,
+        transact_value: i64,
         transaction_type: Transaction
     }
 }
@@ -34,7 +35,7 @@ pub enum Transaction {
 }
 
 impl Serialize for Transaction {
-    fn serialize(self) -> std::string::String { 
+    fn serialize(self) -> std::string::String {
         match self {
             Transaction::CreateAccount => String::from(":transaction/create-account"),
             Transaction::Withdraw => String::from(":transaction/withdraw"),
@@ -47,16 +48,15 @@ impl Serialize for Transaction {
 
 impl From<Edn> for Transaction {
     fn from(edn: Edn) -> Self {
-
         match edn {
             Edn::Key(k) => match &k[..] {
                 ":transaction/create-account" => Transaction::CreateAccount,
                 ":transaction/withdraw" => Transaction::Withdraw,
                 ":transaction/deposit" => Transaction::Deposit,
                 ":transaction/transfer" => Transaction::Transfer,
-                _ => Transaction::Error 
+                _ => Transaction::Error,
             },
-            _ => Transaction::Error
+            _ => Transaction::Error,
         }
     }
 }
@@ -66,7 +66,8 @@ impl From<Edn> for Account {
         Self {
             crux__db___id: CruxId::new(&edn[":crux.db/id"].to_string()),
             value: edn[":value"].to_string().parse::<i64>().unwrap(),
-            transaction_type: Transaction::from(edn[":transaction-type"].clone())
+            transact_value: edn[":transact-value"].to_string().parse::<i64>().unwrap(),
+            transaction_type: Transaction::from(edn[":transaction-type"].clone()),
         }
     }
 }
@@ -79,7 +80,7 @@ impl User {
             crux__db___id: CruxId::new(&user),
             account: account,
             password: format!("{:?}", hashed_pswd),
-        }   
+        }
     }
 
     pub fn register(self) -> Vec<Action> {
@@ -93,7 +94,8 @@ impl Account {
         Self {
             crux__db___id: CruxId::new(&format!("transaction/{}", user)),
             value: amount,
-            transaction_type: Transaction::CreateAccount
+            transact_value: 0,
+            transaction_type: Transaction::CreateAccount,
         }
     }
 
@@ -131,15 +133,16 @@ mod user {
 #[cfg(test)]
 mod account {
     use super::{Account, Transaction};
+    use transistor::edn_rs::Edn;
     use transistor::types::CruxId;
-    use transistor::edn_rs::{Edn};
 
     #[test]
     fn new_account() {
         let account = Account::new("naomijub".to_string(), 300i64);
         let expected = Account {
-            crux__db___id: CruxId::new("transaction/naomijub"), 
+            crux__db___id: CruxId::new("transaction/naomijub"),
             value: 300i64,
+            transact_value: 0,
             transaction_type: Transaction::CreateAccount,
         };
 
@@ -156,10 +159,25 @@ mod account {
 
     #[test]
     fn transact_from() {
-        assert_eq!(Transaction::from(Edn::Key(":transaction/create-account".to_string())), Transaction::CreateAccount);
-        assert_eq!(Transaction::from(Edn::Key(":bleb".to_string())), Transaction::Error);
-        assert_eq!(Transaction::from(Edn::Key(":transaction/transfer".to_string())), Transaction::Transfer);
-        assert_eq!(Transaction::from(Edn::Key(":transaction/withdraw".to_string())), Transaction::Withdraw);
-        assert_eq!(Transaction::from(Edn::Key(":transaction/deposit".to_string())), Transaction::Deposit);
+        assert_eq!(
+            Transaction::from(Edn::Key(":transaction/create-account".to_string())),
+            Transaction::CreateAccount
+        );
+        assert_eq!(
+            Transaction::from(Edn::Key(":bleb".to_string())),
+            Transaction::Error
+        );
+        assert_eq!(
+            Transaction::from(Edn::Key(":transaction/transfer".to_string())),
+            Transaction::Transfer
+        );
+        assert_eq!(
+            Transaction::from(Edn::Key(":transaction/withdraw".to_string())),
+            Transaction::Withdraw
+        );
+        assert_eq!(
+            Transaction::from(Edn::Key(":transaction/deposit".to_string())),
+            Transaction::Deposit
+        );
     }
 }

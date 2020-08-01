@@ -1,11 +1,10 @@
-mod ui;
 mod db;
-mod model;
 mod logic;
+mod model;
+mod ui;
 
+use iced::{Sandbox, Settings};
 use ui::Atm;
-use iced::{Settings, Sandbox};
-
 
 pub fn main() {
     Atm::run(Settings::default())
