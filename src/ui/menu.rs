@@ -1,6 +1,4 @@
-use iced::{
-    Align, Button, Column, Element, HorizontalAlignment, Length, Row, Space, Text,
-};
+use iced::{Align, Button, Column, Element, HorizontalAlignment, Length, Row, Space, Text};
 
 use super::{Atm, Message};
 pub struct Menu;
@@ -8,7 +6,6 @@ pub struct Menu;
 impl Menu {
     pub fn view(atm: &mut Atm) -> Element<Message> {
         Row::new()
-            .padding(100)
             .align_items(Align::Center)
             .push(
                 Button::new(
@@ -19,7 +16,6 @@ impl Menu {
                 .padding(20)
                 .width(Length::Units(150)),
             )
-            .push(Space::new(Length::Units(10u16), Length::Units(10u16)))
             .push(
                 Column::new()
                     .padding(20)

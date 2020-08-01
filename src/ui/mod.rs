@@ -1,14 +1,16 @@
 mod menu;
 mod result_pages;
+mod login_input;
 
 use iced::{
-    button, text_input, Align, Button, Column, Element, Length, Sandbox,
-    Space, Text,
+    button, text_input, Align, Button, Column, Container, Element, Length, Row, Sandbox,
+    Text, TextInput, VerticalAlignment,
 };
 
 use crate::db::{create_account, deposit, statement, withdraw};
 use menu::Menu;
-use result_pages::*;
+use result_pages as pages;
+use login_input as login;
 use transistor::client::Crux;
 
 #[derive(Default)]
@@ -23,6 +25,13 @@ pub struct Atm {
     create_user_button: button::State,
     statement: Vec<String>,
     state: State,
+
+    user_input: text_input::State,
+    user_value: String,
+    account_input: text_input::State,
+    account_value: String,
+    password_input: text_input::State,
+    password_value: String,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -41,7 +50,7 @@ impl Default for State {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum Message {
     LoginSelected,
     WithdrawSelected,
@@ -49,6 +58,10 @@ pub enum Message {
     StatementSelected,
     CreatingUser,
     UserOk,
+
+    InputChanged(String),
+    AccountInputChanged(String),
+    PasswordInputChanged(String),
 }
 
 impl Sandbox for Atm {
@@ -74,9 +87,9 @@ impl Sandbox for Atm {
                 let client = Crux::new("localhost", "3000").docker_client();
                 let account_info = create_account(
                     &client,
-                    String::from("naomijub"),
-                    123456u32,
-                    1029384756u32,
+                    self.user_value.clone(),
+                    self.account_value.clone().parse::<u32>().unwrap_or(0),
+                    self.password_value.clone().parse::<u32>().unwrap_or(0),
                     300i64,
                 )
                 .unwrap_or("error".to_string());
@@ -100,39 +113,31 @@ impl Sandbox for Atm {
                 let statement = statement(&client, 123456u32).unwrap_or(Vec::new());
                 self.statement = statement;
                 self.state = State::Statement;
-            }
+            },
+            Message::InputChanged(user) => self.user_value = user,
+            Message::AccountInputChanged(account) => self.account_value = account,
+            Message::PasswordInputChanged(pswd) => self.password_value = pswd,
         }
     }
 
     fn view(&mut self) -> Element<Message> {
-        match self.state {
-            State::Login => Column::new()
-                .padding(100)
-                .align_items(Align::Center)
-                .push(Text::new("Login Page".to_string()).size(50))
-                .push(Space::new(Length::Units(10u16), Length::Units(10u16)))
-                .push(
-                    Button::new(&mut self.create_user_button, Text::new("New User"))
-                        .on_press(Message::CreatingUser),
-                )
-                .into(),
-            State::User => Column::new()
-                .push(User::view(self))
-                .into(),
-            State::Cashed => Column::new()
-                .push(Cashed::view(self))
-                .into(),
-            State::NewBalance => Column::new()
-                .push(NewBalance::view(self))
-                .into(),
-            State::Statement => Column::new()
-                .push(Statement::view(self))
-                .into(),
+        Container::new(match self.state {
+            State::Login => Column::new().push(login::Login::view(self)),
+            State::User => Column::new().push(pages::User::view(self)),
+            State::Cashed => Column::new().push(pages::Cashed::view(self)),
+            State::NewBalance => Column::new().push(pages::NewBalance::view(self)),
+            State::Statement => Column::new().push(pages::Statement::view(self)),
             State::Menu => Column::new()
+                .spacing(20)
                 .padding(100)
                 .align_items(Align::Center)
-                .push(Menu::view(self))
-                .into(),
-        }
+                .push(Text::new("Naomi Bank ATM").size(50))
+                .push(Menu::view(self)),
+        })
+        .width(Length::Fill)
+        .height(Length::Fill)
+        .center_x()
+        .center_y()
+        .into()
     }
 }

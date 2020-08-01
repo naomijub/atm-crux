@@ -4,7 +4,7 @@ mod model;
 mod ui;
 
 use iced::{Sandbox, Settings};
-use ui::Atm;
+use ui::{Atm};
 
 pub fn main() {
     Atm::run(Settings::default())
