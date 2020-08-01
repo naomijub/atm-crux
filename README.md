@@ -1,6 +1,6 @@
 # ATM Crux
 
-## The main idea was to use a challange to implement an ATM using Crux and transistor crate
+## The main idea was to use a challenge to implement an ATM using Crux and transistor crate
 
 
 ### IBM ATM Challenge
