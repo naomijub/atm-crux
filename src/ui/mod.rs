@@ -3,8 +3,8 @@ mod result_pages;
 mod login_input;
 
 use iced::{
-    button, text_input, Align, Button, Column, Container, Element, Length, Row, Sandbox,
-    Text, TextInput, VerticalAlignment,
+    button, text_input, Align, Column, Container, Element, Length, Sandbox,
+    Text
 };
 
 use crate::db::{create_account, deposit, statement, withdraw};

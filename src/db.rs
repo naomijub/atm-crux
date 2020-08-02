@@ -26,7 +26,7 @@ pub fn withdraw(
     let account_id = Account::account_id(id.clone());
     let entity = client.entity(account_id.serialize()).unwrap();
     let account = Account::from(entity);
-    match (is_password_valid, account.value > amount) {
+    match (is_password_valid, account.value >= amount) {
         (true, true) => {
             let mut tx_account = Account::new(id, account.value - amount);
             tx_account.transact_value = -amount;

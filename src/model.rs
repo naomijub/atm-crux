@@ -74,12 +74,12 @@ impl From<Edn> for Account {
 
 impl User {
     pub fn new(user: String, account: u32, password: u32) -> Self {
-        let hashed_pswd = hash(format!("{}", password), DEFAULT_COST).unwrap();
+        let hashed_pswd = hash(password.to_string(), DEFAULT_COST).unwrap();
 
         User {
             crux__db___id: CruxId::new(&user),
             account: account,
-            password: format!("{:?}", hashed_pswd),
+            password: hashed_pswd.to_string(),
         }
     }
 
