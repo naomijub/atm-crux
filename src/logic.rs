@@ -1,4 +1,4 @@
-pub fn extrat_id_password(set: std::collections::BTreeSet<Vec<String>>) -> (String, String) {
+pub fn extract_id_password(set: std::collections::BTreeSet<Vec<String>>) -> (String, String) {
     let id = set.iter().nth(0).unwrap().to_owned()[0].to_string();
     let pswd = set.iter().nth(0).unwrap().to_owned()[2].replace("\\", "");
 
@@ -23,7 +23,7 @@ mod logic {
     #[test]
     fn id_pswd_tuple() {
         let set = set();
-        let (id, pswd) = extrat_id_password(set);
+        let (id, pswd) = extract_id_password(set);
 
         assert_eq!(id, ":my-id".to_string());
         assert_eq!(pswd, "this is a fucking long password".to_string());

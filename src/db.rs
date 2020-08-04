@@ -4,7 +4,7 @@ use transistor::types::{error::CruxError, query::Query};
 
 use bcrypt::verify;
 
-use crate::logic::extrat_id_password;
+use crate::logic::extract_id_password;
 use crate::model::{Account, Transaction, User};
 
 pub fn withdraw(
@@ -19,7 +19,7 @@ pub fn withdraw(
         .build()?;
 
     let resp = client.query(query)?;
-    let (id, pswd) = extrat_id_password(resp);
+    let (id, pswd) = extract_id_password(resp);
 
     let is_password_valid = verify(format!("{}", password), &pswd).unwrap();
 
@@ -76,7 +76,7 @@ pub fn deposit(
         .build()?;
 
     let resp = client.query(query)?;
-    let (id, pswd) = extrat_id_password(resp);
+    let (id, pswd) = extract_id_password(resp);
 
     let is_password_valid = verify(format!("{}", password), &pswd).unwrap();
 
@@ -103,7 +103,7 @@ pub fn statement(client: &DockerClient, account: u32) -> Result<Vec<String>, Cru
         .build()?;
 
     let resp = client.query(query)?;
-    let (id, _) = extrat_id_password(resp);
+    let (id, _) = extract_id_password(resp);
     let account_id = Account::account_id(id.clone());
     let mut tx_logs = client
         .tx_logs()
