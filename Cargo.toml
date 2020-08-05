@@ -9,8 +9,9 @@ edition = "2018"
 [dependencies]
 iced = "0.1"
 iced_core = "*"
-transistor = { version = "0.4.4", features = ["mock"]}
+transistor = "0.4.4"
 bcrypt = "0.8"
 
 [dev-dependencies]
 mockito = "0.26"
+transistor = { version = "0.4.4", features = ["mock"]}
