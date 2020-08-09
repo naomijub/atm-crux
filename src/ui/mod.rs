@@ -100,6 +100,7 @@ impl Sandbox for Atm {
                     300i64,
                 )
                 .unwrap_or("error".to_string());
+                self.password_value = String::new();
                 self.account_info = account_info;
                 self.state = State::User;
             }
@@ -112,7 +113,7 @@ impl Sandbox for Atm {
                     &client,
                     self.account_value.clone().parse::<u32>().unwrap_or(0),
                     self.password_value.clone().parse::<u32>().unwrap_or(0),
-                    -(self.operation_value.clone().parse::<u32>().unwrap_or(0) as i64),
+                    self.operation_value.clone().parse::<u32>().unwrap_or(0) as i64,
                 )
                 .unwrap_or(0i64);
                 self.password_value = String::new();

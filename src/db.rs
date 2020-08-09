@@ -5,7 +5,7 @@ use transistor::types::{error::CruxError, query::Query};
 use bcrypt::verify;
 
 use crate::logic::extrat_id_password;
-use crate::model::{Account, Transaction, User};
+use crate::model::{Account, Transaction, User, StatementElement};
 
 pub fn withdraw(
     client: &HttpClient,
@@ -109,32 +109,8 @@ pub fn statement(client: &HttpClient, account: u32) -> Result<Vec<String>, CruxE
         .unwrap()
         .history
         .iter()
-        .map(|e| e.db__doc.clone().unwrap().to_string())
+        .map(|e| StatementElement::from(e.db__doc.clone().unwrap()))
+        .map(|e| e.to_string()) 
         .collect::<Vec<String>>())
-    // let mut tx_logs = client
-    //     .tx_logs()
-    //     .unwrap()
-    //     .tx_events
-    //     .into_iter()
-    //     .map(|tx| tx.tx__event___tx_events.unwrap()[0][2].clone())
-    //     .map(|e| String::from(e))
-    //     .collect::<Vec<String>>();
-    // tx_logs.reverse();
-    // tx_logs.iter().for_each(|hash| {
-    //     let doc = client.document_by_id(hash.clone()).unwrap();
-    //     let val = doc[":crux.db/id"].to_string();
-    //     if val == account_id.clone().serialize() {
-    //         let transaction = doc[":transaction-type"]
-    //             .to_string()
-    //             .replace(":transaction/", "");
-    //         let balance = doc[":value"].to_string();
-    //         let transact_value = doc[":transact-value"].to_string();
-    //         v.push(format!(
-    //             "Transaction: {}, Transaction value: {}, Balance at: {}",
-    //             transaction, transact_value, balance
-    //         ));
-    //     }
-    // });
 
-    // Ok(v)
 }
