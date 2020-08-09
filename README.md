@@ -2,6 +2,14 @@
 
 ## The main idea was to use a challenge to implement an ATM using Crux and transistor crate
 
+## Running the example
+1. Make sure you have docker.
+2. Execute `make crux` in the terminal.
+3. Execute `make run` in the terminal.
+4. Have fun!
+
+## Testing
+1. `make test`
 
 ### IBM ATM Challenge
 * This was translated by google translate.
