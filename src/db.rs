@@ -19,7 +19,7 @@ pub fn withdraw(
         .build()?;
 
     let resp = client.query(query)?;
-    let (id, pswd) = extrat_id_password(resp);
+    let (id, pswd) = extract_id_password(resp);
 
     let is_password_valid = verify(format!("{}", password), &pswd).unwrap();
 
@@ -76,7 +76,7 @@ pub fn deposit(
         .build()?;
 
     let resp = client.query(query)?;
-    let (id, pswd) = extrat_id_password(resp);
+    let (id, pswd) = extract_id_password(resp);
 
     let is_password_valid = verify(format!("{}", password), &pswd).unwrap();
 
@@ -102,7 +102,7 @@ pub fn statement(client: &HttpClient, account: u32) -> Result<Vec<String>, CruxE
         .build()?;
 
     let resp = client.query(query)?;
-    let (id, _) = extrat_id_password(resp);
+    let (id, _) = extract_id_password(resp);
     let account_id = Account::account_id(id.clone());
     Ok(client
         .entity_history(account_id.serialize(), Order::Desc, true)
