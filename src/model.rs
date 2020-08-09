@@ -1,4 +1,4 @@
-use transistor::docker::Action;
+use transistor::http::Action;
 use transistor::types::CruxId;
 
 use bcrypt::{hash, DEFAULT_COST};

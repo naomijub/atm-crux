@@ -1,16 +1,15 @@
-mod menu;
-mod result_pages;
 mod login_input;
+mod menu;
+mod operation_input;
+mod result_pages;
 
-use iced::{
-    button, text_input, Align, Column, Container, Element, Length, Sandbox,
-    Text
-};
+use iced::{button, text_input, Align, Column, Container, Element, Length, Sandbox, Text};
 
 use crate::db::{create_account, deposit, statement, withdraw};
-use menu::Menu;
-use result_pages as pages;
 use login_input as login;
+use menu::Menu;
+use operation_input as op;
+use result_pages as pages;
 use transistor::client::Crux;
 
 #[derive(Default)]
@@ -23,6 +22,7 @@ pub struct Atm {
     statement_button: button::State,
     user_ok_button: button::State,
     create_user_button: button::State,
+    confirm_button: button::State,
     statement: Vec<String>,
     state: State,
 
@@ -32,11 +32,14 @@ pub struct Atm {
     account_value: String,
     password_input: text_input::State,
     password_value: String,
+    operation_input: text_input::State,
+    operation_value: String,
 }
 
 #[derive(Debug, Clone, Copy)]
 pub enum State {
     Login,
+    Operation(usize),
     User,
     Menu,
     Cashed,
@@ -57,11 +60,14 @@ pub enum Message {
     DepositSelected,
     StatementSelected,
     CreatingUser,
+    Withdrawn,
+    Deposited,
     UserOk,
 
     InputChanged(String),
     AccountInputChanged(String),
     PasswordInputChanged(String),
+    OperationInputChanged(String),
 }
 
 impl Sandbox for Atm {
@@ -82,9 +88,10 @@ impl Sandbox for Atm {
             }
             Message::UserOk => {
                 self.state = State::Menu;
+                self.value = 0;
             }
             Message::CreatingUser => {
-                let client = Crux::new("localhost", "3000").docker_client();
+                let client = Crux::new("localhost", "3000").http_client();
                 let account_info = create_account(
                     &client,
                     self.user_value.clone(),
@@ -97,32 +104,59 @@ impl Sandbox for Atm {
                 self.state = State::User;
             }
             Message::WithdrawSelected => {
-                let client = Crux::new("localhost", "3000").docker_client();
-                let money = withdraw(&client, 123456u32, 1029384756u32, 50i64).unwrap_or(0i64);
+                self.state = State::Operation(0);
+            }
+            Message::Withdrawn => {
+                let client = Crux::new("localhost", "3000").http_client();
+                let money = withdraw(
+                    &client,
+                    self.account_value.clone().parse::<u32>().unwrap_or(0),
+                    self.password_value.clone().parse::<u32>().unwrap_or(0),
+                    -(self.operation_value.clone().parse::<u32>().unwrap_or(0) as i64),
+                )
+                .unwrap_or(0i64);
+                self.password_value = String::new();
                 self.value = money;
                 self.state = State::Cashed;
             }
             Message::DepositSelected => {
-                let client = Crux::new("localhost", "3000").docker_client();
-                let money = deposit(&client, 123456u32, 1029384756u32, 100i64).unwrap_or(0i64);
+                self.state = State::Operation(1);
+            }
+            Message::Deposited => {
+                let client = Crux::new("localhost", "3000").http_client();
+                let money = deposit(
+                    &client,
+                    self.account_value.clone().parse::<u32>().unwrap_or(0),
+                    self.password_value.clone().parse::<u32>().unwrap_or(0),
+                    self.operation_value.clone().parse::<u32>().unwrap_or(0) as i64,
+                )
+                .unwrap_or(0i64);
+                self.password_value = String::new();
                 self.value = money;
                 self.state = State::NewBalance;
             }
             Message::StatementSelected => {
-                let client = Crux::new("localhost", "3000").docker_client();
-                let statement = statement(&client, 123456u32).unwrap_or(Vec::new());
+                let client = Crux::new("localhost", "3000").http_client();
+                let statement = statement(&client, self.account_value.clone().parse::<u32>().unwrap_or(0)).unwrap_or(Vec::new());
                 self.statement = statement;
                 self.state = State::Statement;
-            },
+            }
             Message::InputChanged(user) => self.user_value = user,
             Message::AccountInputChanged(account) => self.account_value = account,
             Message::PasswordInputChanged(pswd) => self.password_value = pswd,
+            Message::OperationInputChanged(v) => self.operation_value = v,
         }
     }
 
     fn view(&mut self) -> Element<Message> {
         Container::new(match self.state {
             State::Login => Column::new().push(login::Login::view(self)),
+            State::Operation(v) if v == 0usize => {
+                Column::new().push(op::Operation::view(self, Message::Withdrawn))
+            }
+            State::Operation(_) => {
+                Column::new().push(op::Operation::view(self, Message::Deposited))
+            }
             State::User => Column::new().push(pages::User::view(self)),
             State::Cashed => Column::new().push(pages::Cashed::view(self)),
             State::NewBalance => Column::new().push(pages::NewBalance::view(self)),

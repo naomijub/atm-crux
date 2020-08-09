@@ -1,5 +1,5 @@
-use transistor::docker::DockerClient;
 use transistor::edn_rs::Serialize;
+use transistor::http::{HttpClient, Order};
 use transistor::types::{error::CruxError, query::Query};
 
 use bcrypt::verify;
@@ -8,7 +8,7 @@ use crate::logic::extrat_id_password;
 use crate::model::{Account, Transaction, User};
 
 pub fn withdraw(
-    client: &DockerClient,
+    client: &HttpClient,
     account: u32,
     password: u32,
     amount: i64,
@@ -39,7 +39,7 @@ pub fn withdraw(
 }
 
 pub fn create_account(
-    client: &DockerClient,
+    client: &HttpClient,
     user: String,
     account: u32,
     password: u32,
@@ -65,7 +65,7 @@ pub fn create_account(
 }
 
 pub fn deposit(
-    client: &DockerClient,
+    client: &HttpClient,
     account: u32,
     password: u32,
     amount: i64,
@@ -95,8 +95,7 @@ pub fn deposit(
     }
 }
 
-pub fn statement(client: &DockerClient, account: u32) -> Result<Vec<String>, CruxError> {
-    let mut v = Vec::new();
+pub fn statement(client: &HttpClient, account: u32) -> Result<Vec<String>, CruxError> {
     let query = Query::find(vec!["?user", "?p"])?
         .where_clause(vec!["?user :account ?a", "?user :password ?p"])?
         .args(vec![&format!("?a {}", account)])?
@@ -105,30 +104,37 @@ pub fn statement(client: &DockerClient, account: u32) -> Result<Vec<String>, Cru
     let resp = client.query(query)?;
     let (id, _) = extrat_id_password(resp);
     let account_id = Account::account_id(id.clone());
-    let mut tx_logs = client
-        .tx_logs()
+    Ok(client
+        .entity_history(account_id.serialize(), Order::Desc, true)
         .unwrap()
-        .tx_events
-        .into_iter()
-        .map(|tx| tx.tx__event___tx_events.unwrap()[0][2].clone())
-        .map(|e| String::from(e))
-        .collect::<Vec<String>>();
-    tx_logs.reverse();
-    tx_logs.iter().for_each(|hash| {
-        let doc = client.document_by_id(hash.clone()).unwrap();
-        let val = doc[":crux.db/id"].to_string();
-        if val == account_id.clone().serialize() {
-            let transaction = doc[":transaction-type"]
-                .to_string()
-                .replace(":transaction/", "");
-            let balance = doc[":value"].to_string();
-            let transact_value = doc[":transact-value"].to_string();
-            v.push(format!(
-                "Transaction: {}, Transaction value: {}, Balance at: {}",
-                transaction, transact_value, balance
-            ));
-        }
-    });
+        .history
+        .iter()
+        .map(|e| e.db__doc.clone().unwrap().to_string())
+        .collect::<Vec<String>>())
+    // let mut tx_logs = client
+    //     .tx_logs()
+    //     .unwrap()
+    //     .tx_events
+    //     .into_iter()
+    //     .map(|tx| tx.tx__event___tx_events.unwrap()[0][2].clone())
+    //     .map(|e| String::from(e))
+    //     .collect::<Vec<String>>();
+    // tx_logs.reverse();
+    // tx_logs.iter().for_each(|hash| {
+    //     let doc = client.document_by_id(hash.clone()).unwrap();
+    //     let val = doc[":crux.db/id"].to_string();
+    //     if val == account_id.clone().serialize() {
+    //         let transaction = doc[":transaction-type"]
+    //             .to_string()
+    //             .replace(":transaction/", "");
+    //         let balance = doc[":value"].to_string();
+    //         let transact_value = doc[":transact-value"].to_string();
+    //         v.push(format!(
+    //             "Transaction: {}, Transaction value: {}, Balance at: {}",
+    //             transaction, transact_value, balance
+    //         ));
+    //     }
+    // });
 
-    Ok(v)
+    // Ok(v)
 }

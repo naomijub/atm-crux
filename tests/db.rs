@@ -1,7 +1,6 @@
-use transistor::client::Crux;
+use atm::db::create_account;
 use mockito::mock;
-use atm::db::{create_account};
-
+use transistor::client::Crux;
 
 #[test]
 fn account_already_exists() {
@@ -12,7 +11,14 @@ fn account_already_exists() {
         .create();
     let mut crux = Crux::new("localhost", "3000");
 
-    let account = create_account(&crux.docker_mock(), String::from("test"), 1234u32, 162534u32, 30i64).unwrap();
+    let account = create_account(
+        &crux.http_mock(),
+        String::from("test"),
+        1234u32,
+        162534u32,
+        30i64,
+    )
+    .unwrap();
 
     assert_eq!(account, "Account already exists");
 }
@@ -34,7 +40,14 @@ fn account_created_with_id() {
 
     let mut crux = Crux::new("localhost", "3000");
 
-    let account = create_account(&crux.docker_mock(), String::from("thoho-est"), 221234u32, 162534u32, 30i64).unwrap();
+    let account = create_account(
+        &crux.http_mock(),
+        String::from("thoho-est"),
+        221234u32,
+        162534u32,
+        30i64,
+    )
+    .unwrap();
 
     assert_eq!(account, "221234");
 }
