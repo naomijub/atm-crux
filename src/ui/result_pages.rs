@@ -31,7 +31,7 @@ impl Cashed {
             .align_items(Align::Center)
             .push(Text::new("Money Cashed Page".to_string()).size(50))
             .push(Space::new(Length::Units(10u16), Length::Units(10u16)))
-            .push(Text::new(atm.value.to_string()).size(50))
+            .push(Text::new((-atm.value).to_string()).size(50))
             .push(Space::new(Length::Units(10u16), Length::Units(10u16)))
             .push(
                 Button::new(&mut atm.user_ok_button, Text::new("Ok").size(30))

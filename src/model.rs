@@ -1,4 +1,4 @@
-use transistor::docker::Action;
+use transistor::http::Action;
 use transistor::types::CruxId;
 
 use bcrypt::{hash, DEFAULT_COST};
@@ -179,5 +179,35 @@ mod account {
             Transaction::from(Edn::Key(":transaction/deposit".to_string())),
             Transaction::Deposit
         );
+    }
+}
+
+
+pub struct StatementElement {
+    value: usize,
+    tx_type: String,
+    balance: usize,
+}
+
+impl From<Edn> for StatementElement {
+    fn from(edn: Edn) -> Self { 
+
+        Self {
+            value: edn[":transact-value"].to_uint().unwrap_or(0usize),
+            tx_type: edn[":transaction-type"].to_string(),
+            balance: edn[":value"].to_uint().unwrap_or(0usize),
+        }
+    }
+}
+
+impl StatementElement {
+    pub fn to_string(&self) -> String {
+        let tx_name = match &self.tx_type[..] {
+            ":transaction/withdraw" => "Withdraw",
+            ":transaction/deposit" => "Deposit",
+            _ => "Account Creation"
+        };
+
+        format!("Transaction: {}, Value: {}. Balance at TX: {}", tx_name, self.value, self.balance)
     }
 }

@@ -540,11 +540,10 @@ dependencies = [
 
 [[package]]
 name = "edn-rs"
-version = "0.10.0"
+version = "0.10.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "63834dfb0014b47f6e01596fe84c8b7fc5d7e2d9a439002d829e3927abaf91ca"
+checksum = "cb1694bf7c4d7da5b4ac8cce5cda91e5cd0dfdb259eb6b4a0e574a8d14a649f1"
 dependencies = [
- "ordered-float",
  "regex",
 ]
 
@@ -2510,9 +2509,9 @@ dependencies = [
 
 [[package]]
 name = "transistor"
-version = "0.4.4"
+version = "1.0.0-beta.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4924dd0a61fab22a248b34d300ff6bd7429fcceed54fd1b5ae71f9a1c44dcc9a"
+checksum = "a0a10066c2a8560ed23e222565cb408734b2199dec514d2a18d21dc132b86ab3"
 dependencies = [
  "edn-rs",
  "mockito",

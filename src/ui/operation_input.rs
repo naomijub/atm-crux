@@ -2,19 +2,10 @@ use iced::{Align, Button, Column, Element, Row, Text, TextInput, VerticalAlignme
 
 use super::{Atm, Message};
 
-pub struct Login;
+pub struct Operation;
 
-impl Login {
-    pub fn view(atm: &mut Atm) -> Element<Message> {
-        let user_input = TextInput::new(
-            &mut atm.user_input,
-            "Your username",
-            &atm.user_value,
-            Message::InputChanged,
-        )
-        .padding(10)
-        .size(20);
-
+impl Operation {
+    pub fn view(atm: &mut Atm, msg: Message) -> Element<Message> {
         let account_input = TextInput::new(
             &mut atm.account_input,
             "Your account",
@@ -33,9 +24,21 @@ impl Login {
         .padding(10)
         .size(20);
 
+        let operation_input = TextInput::new(
+            &mut atm.operation_input,
+            "Amount",
+            &atm.operation_value,
+            Message::OperationInputChanged,
+        )
+        .padding(10)
+        .size(20);
+
         Column::new()
             .align_items(Align::Center)
-            .push(Text::new("Login Page".to_string()).size(50))
+            .push(Text::new(match msg {
+               Message::Deposited =>  "Deposit Input Page".to_string(),
+               _                  =>  "Withdraw Input Page".to_string(),
+            }).size(50))
             .spacing(20)
             .padding(25)
             .push(
@@ -44,12 +47,6 @@ impl Login {
                     .push(
                         Row::new()
                             .spacing(10)
-                            .push(
-                                Text::new("User")
-                                    .size(30)
-                                    .vertical_alignment(VerticalAlignment::Center),
-                            )
-                            .push(user_input)
                             .push(
                                 Text::new("Account")
                                     .size(30)
@@ -67,12 +64,23 @@ impl Login {
                                     .vertical_alignment(VerticalAlignment::Center),
                             )
                             .push(password_input),
+                    )
+                    .push(
+                        Row::new()
+                            .spacing(10)
+                            .align_items(Align::Start)
+                            .push(
+                                Text::new("Amount")
+                                    .size(30)
+                                    .vertical_alignment(VerticalAlignment::Center),
+                            )
+                            .push(operation_input),
                     ),
             )
             .push(
-                Button::new(&mut atm.create_user_button, Text::new("Create User"))
+                Button::new(&mut atm.confirm_button, Text::new("Confirmar"))
                     .padding(25)
-                    .on_press(Message::CreatingUser),
+                    .on_press(msg),
             )
             .into()
     }
