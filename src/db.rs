@@ -1,10 +1,10 @@
 use transistor::edn_rs::Serialize;
-use transistor::http::{HttpClient, Order};
-use transistor::types::{error::CruxError, query::Query};
+use transistor::http::{HttpClient};
+use transistor::types::{error::CruxError, query::Query, Order};
 
 use bcrypt::verify;
 
-use crate::logic::extrat_id_password;
+use crate::logic::extract_id_password;
 use crate::model::{Account, Transaction, User, StatementElement};
 
 pub fn withdraw(

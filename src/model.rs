@@ -1,5 +1,5 @@
-use transistor::http::Action;
-use transistor::types::CruxId;
+
+use transistor::types::{CruxId, Action};
 
 use bcrypt::{hash, DEFAULT_COST};
 use transistor::edn_rs::{ser_struct, Edn, Serialize};
@@ -84,7 +84,7 @@ impl User {
     }
 
     pub fn register(self) -> Vec<Action> {
-        let action = Action::Put(self.serialize());
+        let action = Action::Put(self.serialize(), None);
         vec![action]
     }
 }
@@ -105,7 +105,7 @@ impl Account {
 
     pub fn transact(mut self, transaction: Transaction) -> Vec<Action> {
         self.transaction_type = transaction;
-        let action = Action::Put(self.serialize());
+        let action = Action::Put(self.serialize(), None);
         vec![action]
     }
 }

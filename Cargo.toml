@@ -9,7 +9,7 @@ edition = "2018"
 [dependencies]
 iced = "0.1"
 iced_core = "*"
-transistor = "1.0.0-beta"
+transistor = "1.3.5"
 bcrypt = "0.8"
 
 [dev-dependencies]
