@@ -184,16 +184,15 @@ mod account {
 
 
 pub struct StatementElement {
-    value: usize,
+    value: isize,
     tx_type: String,
     balance: usize,
 }
 
 impl From<Edn> for StatementElement {
     fn from(edn: Edn) -> Self { 
-
         Self {
-            value: edn[":transact-value"].to_uint().unwrap_or(0usize),
+            value: edn[":transact-value"].to_int().unwrap_or(0isize),
             tx_type: edn[":transaction-type"].to_string(),
             balance: edn[":value"].to_uint().unwrap_or(0usize),
         }
